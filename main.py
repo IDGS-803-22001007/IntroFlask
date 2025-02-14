@@ -11,6 +11,49 @@ def index():
     return render_template('index.html',grupo=grupo,lista=lista)
 
 
+
+
+@app.route('/cine', methods=['GET', 'POST'])
+def cine():
+    pagar = ""  
+
+    if request.method == 'POST':
+        try:
+            nombre = request.form['name']
+            cantidad_compradores = int(request.form['compradores'])  
+            cineco = int(request.form['cineco'])
+            boletos = int(request.form['boletos'])  
+            
+            boletos_permitidos = (cantidad_compradores + 1) * 7  
+
+            if boletos > boletos_permitidos:
+                pagar = f"No puedes comprar más de {boletos_permitidos} boletos (7 por persona)."
+            else:
+                precio_boleto = 12.00
+                total_sin_descuento = boletos * precio_boleto
+
+                if boletos > 5:
+                    descuento = 0.15
+                elif 3 <= boletos <= 5:
+                    descuento = 0.10
+                else:
+                    descuento = 0.0
+
+                total_con_descuento = total_sin_descuento * (1 - descuento)
+
+                if cineco == 1:
+                    total_con_descuento *= 0.9  
+
+                pagar = f"${total_con_descuento:,.2f}"  
+        except ValueError:
+            pagar = "Error en los datos ingresados, por favor verifica los campos."
+
+    return render_template('cine.html', pagar=pagar)
+
+
+
+
+
 @app.route('/OperasBas')#decorador o ruta de la aplicacion
 def Operas():
     return render_template('OperasBas.html')
