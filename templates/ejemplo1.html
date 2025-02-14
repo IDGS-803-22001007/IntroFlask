@@ -3,7 +3,14 @@
 
 
 {% block container %}
-   
+   {%import "_macros.html" as macros%}
+
+
     <h1>Ejemplo1</h1>
+
+    {{macros.datos("Nombre", "Nombre")}}
+
+    {{macros.datos("Edad", "Edad", type="number")}}
     
+    {{macros.datos("Password", "Password", type="password")}}
 {% endblock%}
