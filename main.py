@@ -1,17 +1,61 @@
 from flask import Flask, render_template, request
-
+import forms
+from flask import g
+from flask import flash
+from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__)#objeto de la aplicacion creando la aplicacion
 
 @app.route('/')#decorador o ruta de la aplicacion
 def index():
+    print('Index2')
+    print('Hola{}'.format('g.Nombre'))
     grupo='IDGS703'
     lista=['Brayan','Jorge','Luis']
     return render_template('index.html',grupo=grupo,lista=lista)
 
 
 
+@app.before_request
+def before_request():
+    g.Nombre = 'Brayan'
+    print('Antes de la peticion')
+    
+@app.after_request
+def after_request(response):
+    print('Despues de la peticion')
+    return response
+
+
+
+app=Flask(__name__)
+app.secret_key='La clave secreta'
+csrf = CSRFProtect(app)
+
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.route('/alumnos', methods=['GET', 'POST'])
+def alumnos():
+    matricula = ""
+    edad = ""
+    nombre = ""
+    apellidos = ""
+    email = ""
+    alumnos_clase = forms.userForm(request.form)
+    if request.method == 'POST' and alumnos_clase.validate():
+        matricula = alumnos_clase.matricula.data
+        edad = alumnos_clase.edad.data
+        nombre = alumnos_clase.nombre.data
+        apellidos = alumnos_clase.apellidos.data
+        email = alumnos_clase.email.data
+        mensaje = "Bienvenido {}".format(nombre)
+        flash(mensaje)
+    return render_template('alumnos.html', form=alumnos_clase, matricula=matricula, edad=edad, nombre=nombre, apellidos=apellidos, email=email)
 
 @app.route('/cine', methods=['GET', 'POST'])
 def cine():
@@ -136,5 +180,6 @@ def form1():
 
 
 if __name__ == '__main__': #indicamos de donde se ejecuta la aplicacion
+    csrf.init_app(app)
     app.run(debug=True,port=8080)#el debug es para que se actualice automaticamente
     
